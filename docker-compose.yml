@@ -2,30 +2,35 @@ version: "3.8"
 
 services:
   mongo:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
+    image: mongo:6.0
+    restart: always
+    container_name: mongo
     volumes:
       - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: examplepassword
 
   backend:
-    build: ./backend
-    container_name: mean-backend
-    ports:
-      - "8080:8080"
-    environment:
-      MONGO_URL: mongodb://mongo:27017/tutorialsdb
+    image: laxmi707/mean-backend:latest
+    restart: always
+    container_name: backend
     depends_on:
       - mongo
+    environment:
+      MONGO_URL: mongodb://root:examplepassword@mongo:27017/mean?authSource=admin
+      PORT: 5000
+    ports:
+      - "5000:5000"
 
   frontend:
-    build: ./frontend
-    container_name: mean-frontend
-    ports:
-      - "4200:80"
+    image: laxmi707/mean-frontend:latest
+    restart: always
+    container_name: frontend
     depends_on:
       - backend
+    ports:
+      - "80:80"
 
 volumes:
   mongo_data:
